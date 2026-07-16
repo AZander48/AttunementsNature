@@ -31,22 +31,10 @@
       <HintPath>$(HadeanTacticsManaged)\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.InputLegacyModule" Condition="Exists('$(HadeanTacticsManaged)\UnityEngine.InputLegacyModule.dll')">
-      <HintPath>$(HadeanTacticsManaged)\UnityEngine.InputLegacyModule.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Unity.InputSystem" Condition="Exists('$(HadeanTacticsManaged)\Unity.InputSystem.dll')">
-      <HintPath>$(HadeanTacticsManaged)\Unity.InputSystem.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="UnityEngine.UI" Condition="Exists('$(HadeanTacticsManaged)\UnityEngine.UI.dll')">
       <HintPath>$(HadeanTacticsManaged)\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <reference Include="Unity.TextMeshPro" Condition="Exists('$(HadeanTacticsManaged)\Unity.TextMeshPro.dll')">
-      <HintPath>$(HadeanTacticsManaged)\Unity.TextMeshPro.dll</HintPath>
-      <Private>false</Private>
-    </reference>
     <Reference Include="UnityEngine.IMGUIModule" Condition="Exists('$(HadeanTacticsManaged)\UnityEngine.IMGUIModule.dll')">
       <HintPath>$(HadeanTacticsManaged)\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>false</Private>

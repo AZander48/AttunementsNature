@@ -1,82 +1,92 @@
 # AttunmentsNature
 
-Minimal BepInEx 5 plugin template for [Hadean Tactics](https://store.steampowered.com/app/1324530/Hadean_Tactics/).
+BepInEx 5 plugin for [Hadean Tactics](https://store.steampowered.com/app/1324530/Hadean_Tactics/).
 
-Use this repo as a starting point for a new mod. For a more complete example with input handling and an in-game config menu, see [DebuggingAdventures](https://github.com/AZander48/DebuggingAdventures) and [HadeanTacticsExamplesMod](https://github.com/AZander48/HadeanTacticsExamplesMod).
+Adds **attunment** buffs: a unit’s attacks apply **burn**, **decay**, **freeze**, or **shock** based on a fixed element. Buff strength equals the status value; each attack reduces that value by **10%** (minimum 1). Freeze duration scales **1:1** with value.
+
+## What it does
+
+| Feature | Behavior |
+|---------|----------|
+| Attunment buff | Enchant on a unit; attacks apply one fixed ailment |
+| Elements | `burn`, `decay`, `freeze`, `shock` |
+| Decay on attack | Value × 0.1 per attack (ceil, min 1) |
+| Test card | Ally-target card that applies the configured element |
+| Hero | Custom hero whose mana skill self-applies attunment |
+
+Implementation uses `PoisonClaw` as a carrier with `args = "attunment:{element}"`, plus Harmony hooks on melee, projectiles, and status duration.
 
 ## Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/download)
-- An owned copy of Hadean Tactics (Steam)
-- [BepInEx 5](https://docs.bepinex.dev/) installed in the game folder
+- Hadean Tactics (Steam)
+- [BepInEx 5](https://docs.bepinex.dev/) in the game folder
 
 ## Setup
 
-1. Create `AttunmentsNaturePath.props` in this folder (it is gitignored) and set your game install path:
+1. Create `AttunmentsNature.props` (gitignored) with your install path:
 
 ```xml
 <Project>
   <PropertyGroup>
-    <HadeanTacticsDir>C:\Path\To\Hadean Tactics</HadeanTacticsDir>
+    <HadeanTacticsDir>C:\Program Files (x86)\Steam\steamapps\common\Hadean Tactics</HadeanTacticsDir>
   </PropertyGroup>
 </Project>
 ```
 
-2. Ensure `AttunmentsNature.csproj` imports that props file:
-
-```xml
-<Import Condition="Exists('AttunmentsNaturePath.props')" Project="AttunmentsNaturePath.props" />
-```
-
-3. Restore and build:
+2. Build:
 
 ```powershell
 dotnet restore
-dotnet build
+dotnet build -c Release
 ```
 
-On build, the DLL is copied to `BepInEx/plugins/AttunmentsNature` when `HadeanTacticsDir` is set. A zip is also written to `bin/Publish/AttunmentsNature.zip`.
+DLL copies to `BepInEx/plugins/AttunmentsNature`. A zip is also written to `bin/Publish/AttunmentsNature.zip`.
+
+## Config
+
+`BepInEx/config/AttunmentsNature.cfg`
+
+Edit while the game is closed. BepInEx Configuration Manager does not work in Hadean Tactics.
+
+### `[Attunment]`
+
+| Setting | Default | Meaning |
+|---------|---------|---------|
+| Debug | false | Extra log lines |
+| Buff Value | 50 | Stacks (or freeze seconds) for the test card |
+| Element | burn | Fixed element for the test card: `burn`, `decay`, `freeze`, or `shock` |
+
+In-game config UI (if available): **Add buff card to hand** draws an ally-target attunment card using those settings. Play it on a unit, then attack.
+
+### `[Hero Unit]`
+
+| Setting | Default | Meaning |
+|---------|---------|---------|
+| Debug | false | Extra log lines |
+| Visual Donor Id | moonhunter | Unit id used for the hero model |
+| Skill Element | burn | Element applied to self on skill cast |
+| Skill Value | 10 | Buff value for the hero skill |
+
+**Add to bench** registers/spawns `my_hero` with skill `skill_my_hero` (`TargetType.Source` → self-buff). Re-click after changing skill settings so the unit is re-registered.
 
 ## Project layout
 
 | File | Purpose |
 |------|---------|
-| `AttunmentsNature.cs` | Plugin entry point |
-| `AttunmentsNature.csproj` | Build config, BepInEx metadata, SDK references |
-| `AttunmentsNaturePath.props` | Local game path (not committed) |
+| `AttunmentsNature.cs` | Plugin entry |
+| `AttunmentEffect.cs` | Buff helpers, test card, Harmony patches |
+| `hero.cs` | Hero unit + self-attunment skill |
+| `AttunmentsNature.props` | Local game path (not committed) |
 
-## Plugin metadata
+## Notes
 
-Set these in `AttunmentsNature.csproj` before publishing a mod:
-
-```xml
-<BepInExPluginGuid>AttunmentsNature</BepInExPluginGuid>
-<BepInExPluginName>AttunmentsNature</BepInExPluginName>
-<Version>0.1.0</Version>
-```
-
-Change the GUID and name for your own mod. BepInEx uses the GUID for the config filename (e.g. `BepInEx/config/AttunmentsNature.cfg`).
-
-## Configuring your mod
-
-Add settings with `Config.Bind(...)` in `Awake()`. They are saved to `BepInEx/config/<your-plugin-guid>.cfg` and can be edited while the game is closed.
-
-**BepInEx Configuration Manager does not work in Hadean Tactics** — its window never appears. Use config files directly, or build your own `OnGUI` menu (see DebuggingAdventures).
-
-## Hadean Tactics modding notes
-
-- The game uses Unity's **new Input System** — legacy `Input.GetKey` and BepInEx `KeyboardShortcut` may not receive key presses. Poll `UnityEngine.InputSystem.Keyboard` from a `MonoBehaviour` instead.
-- **Function keys are reserved** by the game (e.g. F9 opens the bug report menu). Use modifier combos like **Ctrl+Shift+M** for mod hotkeys.
-- `BaseUnityPlugin.Update()` may not run reliably — attach input/UI logic to a separate `MonoBehaviour` on a `DontDestroyOnLoad` `GameObject`.
+- Valid elements are only `burn`, `decay`, `freeze`, `shock` (not `fire` / `poison` / `ice`).
+- Cards must use `IsMod = false` unless you ship a game ModContainer with VFX for the card id.
+- Hero unit skills that buff the caster should use `TargetType.Source`, not `AllyOnly` / `RandomEmptyTile`.
 
 ## SDK
 
-This template references [NuggetTactics.SDK](https://www.nuget.org/packages/NuggetTactics.SDK) **1.0.2**, which wires up game assembly references and publicization against your local install. It does not redistribute game files.
-
-```powershell
-dotnet list package
-```
-
-To upgrade the SDK, change the `Version` in `AttunmentsNature.csproj`, then run `dotnet restore --force-evaluate`.
+References [NuggetTactics.SDK](https://www.nuget.org/packages/NuggetTactics.SDK) **1.0.2**.
 
 See the [NuggetTactics.SDK README](https://github.com/AZander48/NuggetTactics.SDK) for details.
