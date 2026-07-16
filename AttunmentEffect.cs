@@ -10,9 +10,9 @@ using UnityEngine;
 namespace AttunmentsNature;
 
 /// <summary>
-/// Attunment buff: PoisonClaw carrier with args "attunment:{burn|decay|freeze|shock}".
+/// Attunment buff: PoisonClaw carrier with args "attunment:{burn|decay|frostbite|shock}".
 /// On attack applies that ailment for the buff's current value; value decays 10% per attack.
-/// Freeze duration scales 1:1 with value.
+/// Frostbite duration scales 1:1 with value.
 /// </summary>
 public static class AttunmentsEffects
 {
@@ -20,10 +20,10 @@ public static class AttunmentsEffects
 
     public const string Burn = "burn";
     public const string Decay = "decay";
-    public const string Freeze = "freeze";
+    public const string Frostbite = "frostbite";
     public const string Shock = "shock";
 
-    public static readonly string[] Elements = { Burn, Decay, Freeze, Shock };
+    public static readonly string[] Elements = { Burn, Decay, Frostbite, Shock };
 
     public static string ArgsFor(string element) => ArgsPrefix + element;
 
@@ -89,7 +89,7 @@ public static class AttunmentsEffects
             Burn => new Effect(EffectType.Burn, buff.value) { dMod = dMod },
             Decay => new Effect(EffectType.Decay, buff.value) { dMod = dMod },
             Shock => new Effect(EffectType.Shock, buff.value) { dMod = dMod },
-            Freeze => new Effect(EffectType.Freeze, (float)buff.value) { dMod = dMod },
+            Frostbite => new Effect(EffectType.Frostbite, (float)buff.value) { dMod = dMod },
             _ => null!,
         };
 
@@ -107,7 +107,7 @@ public static class AttunmentsEffects
             Burn => new Effect(EffectType.Burn, buff.value),
             Decay => new Effect(EffectType.Decay, buff.value),
             Shock => new Effect(EffectType.Shock, buff.value),
-            Freeze => new Effect(EffectType.Freeze, (float)buff.value),
+            Frostbite => new Effect(EffectType.Frostbite, (float)buff.value),
             _ => new Effect(EffectType.Decay, buff.value),
         };
     }
@@ -129,12 +129,12 @@ public class AttunmentsEffectsManager
         new Harmony(PluginInfo.PLUGIN_GUID).PatchAll(typeof(AttunmentHandleMeleePatch).Assembly);
 
         _debug = config.Bind("Attunment", "Debug", false, "Enable or disable debug logging");
-        _buffValue = config.Bind("Attunment", "Buff Value", 50, "Stacks / freeze duration applied by the attunment buff.");
+        _buffValue = config.Bind("Attunment", "Buff Value", 50, "Stacks / frostbite duration applied by the attunment buff.");
         _element = config.Bind(
             "Attunment",
             "Element",
             AttunmentsEffects.Burn,
-            "Fixed element for the test card: burn, decay, freeze, or shock.");
+            "Fixed element for the test card: burn, decay, frostbite, or shock.");
 
         config.Bind(
             "Attunment",
@@ -189,7 +189,7 @@ public class AttunmentsEffectsManager
         string element = (_element.Value ?? AttunmentsEffects.Burn).Trim().ToLowerInvariant();
         if (!AttunmentsEffects.TryGetElement(AttunmentsEffects.ArgsFor(element), out _))
         {
-            _log.LogError($"Invalid Element '{_element.Value}'. Use burn, decay, freeze, or shock.");
+            _log.LogError($"Invalid Element '{_element.Value}'. Use burn, decay, frostbite, or shock.");
             return;
         }
 

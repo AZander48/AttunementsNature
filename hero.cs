@@ -41,12 +41,12 @@ public class HeroUnitManager
             "Hero Unit",
             "Skill Element",
             AttunmentsEffects.Burn,
-            "Attunment element applied to self on skill: burn, decay, freeze, or shock.");
+            "Attunment element applied to self on skill: burn, decay, frostbite, or shock.");
         _skillValue = config.Bind(
             "Hero Unit",
             "Skill Value",
             10,
-            "Attunment buff value (stacks / freeze duration).");
+            "Attunment buff value (stacks / frostbite duration).");
 
         config.Bind(
             "Hero Unit",

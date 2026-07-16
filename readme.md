@@ -2,14 +2,14 @@
 
 BepInEx 5 plugin for [Hadean Tactics](https://store.steampowered.com/app/1324530/Hadean_Tactics/).
 
-Adds **attunment** buffs: a unit’s attacks apply **burn**, **decay**, **freeze**, or **shock** based on a fixed element. Buff strength equals the status value; each attack reduces that value by **10%** (minimum 1). Freeze duration scales **1:1** with value.
+Adds **attunment** buffs: a unit’s attacks apply **burn**, **decay**, **forstbite**, or **shock** based on a fixed element. Buff strength equals the status value; each attack reduces that value by **10%** (minimum 1). Forstbite duration scales **1:1** with value.
 
 ## What it does
 
 | Feature | Behavior |
 |---------|----------|
 | Attunment buff | Enchant on a unit; attacks apply one fixed ailment |
-| Elements | `burn`, `decay`, `freeze`, `shock` |
+| Elements | `burn`, `decay`, `forstbite`, `shock` |
 | Decay on attack | Value × 0.1 per attack (ceil, min 1) |
 | Test card | Ally-target card that applies the configured element |
 | Hero | Custom hero whose mana skill self-applies attunment |
@@ -54,8 +54,8 @@ Edit while the game is closed. BepInEx Configuration Manager does not work in Ha
 | Setting | Default | Meaning |
 |---------|---------|---------|
 | Debug | false | Extra log lines |
-| Buff Value | 50 | Stacks (or freeze seconds) for the test card |
-| Element | burn | Fixed element for the test card: `burn`, `decay`, `freeze`, or `shock` |
+| Buff Value | 50 | Stacks (or forstbite seconds) for the test card |
+| Element | burn | Fixed element for the test card: `burn`, `decay`, `forstbite`, or `shock` |
 
 In-game config UI (if available): **Add buff card to hand** draws an ally-target attunment card using those settings. Play it on a unit, then attack.
 
@@ -81,7 +81,7 @@ In-game config UI (if available): **Add buff card to hand** draws an ally-target
 
 ## Notes
 
-- Valid elements are only `burn`, `decay`, `freeze`, `shock` (not `fire` / `poison` / `ice`).
+- Valid elements are only `burn`, `decay`, `forstbite`, `shock` (not `fire` / `poison` / `ice`).
 - Cards must use `IsMod = false` unless you ship a game ModContainer with VFX for the card id.
 - Hero unit skills that buff the caster should use `TargetType.Source`, not `AllyOnly` / `RandomEmptyTile`.
 
