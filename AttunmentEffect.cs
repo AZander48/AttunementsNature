@@ -89,7 +89,7 @@ public static class AttunmentsEffects
             Burn => new Effect(EffectType.Burn, buff.value) { dMod = dMod },
             Decay => new Effect(EffectType.Decay, buff.value) { dMod = dMod },
             Shock => new Effect(EffectType.Shock, buff.value) { dMod = dMod },
-            Frostbite => new Effect(EffectType.Frostbite, (float)buff.value) { dMod = dMod },
+            Frostbite => new Effect(EffectType.Frostbite, buff.value) { dMod = dMod },
             _ => null!,
         };
 
@@ -107,7 +107,7 @@ public static class AttunmentsEffects
             Burn => new Effect(EffectType.Burn, buff.value),
             Decay => new Effect(EffectType.Decay, buff.value),
             Shock => new Effect(EffectType.Shock, buff.value),
-            Frostbite => new Effect(EffectType.Frostbite, (float)buff.value),
+            Frostbite => new Effect(EffectType.Frostbite, buff.value),
             _ => new Effect(EffectType.Decay, buff.value),
         };
     }
