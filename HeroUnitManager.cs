@@ -15,9 +15,6 @@ public class HeroUnitManager
 
     private ManualLogSource _log = null!;
     private ConfigEntry<bool> _debug = null!;
-    private ConfigEntry<string> _visualDonorId = null!;
-    private ConfigEntry<int> _skillValue = null!;
-    private ConfigEntry<bool> _startWithAllSkills = null!;
 
     private UnitManager _unitManager = null!;
     private bool _heroRegistered = false;
@@ -47,38 +44,6 @@ public class HeroUnitManager
     private void InitConfigEntries(ConfigFile config)
     {
         _debug = config.Bind("Hero Unit", "Debug", false, "Enable or disable debug logging");
-        _visualDonorId = config.Bind(
-            "Hero Unit",
-            "Visual Donor Id",
-            "moonhunter",
-            "Unit id for model. Use InfoBox ID.");
-        _skillValue = config.Bind(
-            "Hero Unit",
-            "Skill Value",
-            10,
-            "Base skill value at style level 1 (scales with level).");
-        _startWithAllSkills = config.Bind(
-            "Hero Unit",
-            "Start with all skills",
-            false,
-            "true = hero begins with every class skill (all cast at once). false = vanilla: start with class 0, gain others via level-up upgrades.");
-
-        config.Bind(
-            "Hero Unit",
-            "Add to bench",
-            false,
-            new ConfigDescription(
-                "Register the hero unit (if needed) and spawn it as a hero on the bench/party.",
-                null,
-                new ConfigurationManagerAttributes
-                {
-                    CustomDrawer = _ =>
-                    {
-                        if (GUILayout.Button("Add to bench", GUILayout.ExpandWidth(false)))
-                            AddHeroUnitToBench();
-                    },
-                    HideDefaultButton = true,
-                }));
     }
 
     /// <summary>Base hero: styleQnt = class count, skills seeded per the "start with all" toggle.</summary>
@@ -86,23 +51,6 @@ public class HeroUnitManager
     {
         var skills = new List<EffectContainer>();
         var styleLevel = new int[Mathf.Max(4, hero.Classes.Count)];
-
-        if (_startWithAllSkills.Value)
-        {
-            foreach (IHeroClass cls in hero.Classes)
-            {
-                skills.Add(cls.BuildSkill(hero.Id, 1, _skillValue.Value));
-                if (cls.Index < styleLevel.Length)
-                    styleLevel[cls.Index] = 1;
-            }
-        }
-        else
-        {
-            // Starter skill only — styleLevel[0] stays 0 until the player upgrades that path.
-            // SyncSkillsFromStyles then drops this starter when another class is unlocked,
-            // so Burn Attunment is not carried onto Element Cloak / Roots / etc.
-            skills.Add(hero.Classes[0].BuildSkill(hero.Id, 1, _skillValue.Value));
-        }
 
         return new Unit
         {
@@ -125,7 +73,7 @@ public class HeroUnitManager
             MaxMana = hero.MaxMana,
             ManaRegen = hero.ManaRegen,
             currentMana = 0f,
-            skillId = hero.Classes[0].BuildSkill(hero.Id, 1, _skillValue.Value).id,
+            skillId = hero.Classes[0].BuildSkill(hero.Id, 1, 10).id, // TODO: change to the first skill of the hero / check value
             skillLevel = 1,
             skills = skills,
             styleQnt = hero.Classes.Count,
@@ -138,9 +86,9 @@ public class HeroUnitManager
     /// system (GetUnitUpgradeEntry + MergeAndUpgrade) merges these in on level-up,
     /// adding the class's skill to the hero's skills list (→ multiple skills).
     /// </summary>
-    private Unit BuildUpgradeUnit(HeroDefinition hero, IHeroClass cls, int level, string donorId)
+    private Unit BuildUpgradeHeroUnit(HeroDefinition hero, IHeroClass cls, int level, string donorId)
     {
-        EffectContainer skill = cls.BuildSkill(hero.Id, level, _skillValue.Value);
+        EffectContainer skill = cls.BuildSkill(hero.Id, level, 10);
         return new Unit
         {
             id = $"{hero.Id}_{cls.Index}_{level}",
@@ -165,7 +113,7 @@ public class HeroUnitManager
     }
 
     /// <summary>Spawn path — AddUnitToTeam + isHero. Call from the config button, not during register.</summary>
-    private void AddHeroUnitToBench()
+    /*private void AddHeroUnitToBench()
     {
         var unitManager = GetUnitManager();
         if (unitManager == null)
@@ -191,7 +139,7 @@ public class HeroUnitManager
         }
 
         if (_debug.Value)
-            _log.LogInfo($"Spawning hero (donor={_visualDonorId.Value})");
+            _log.LogInfo($"Spawning hero (donor={hero.Instance.AppearId})");
 
         UnitBehaviour behaviour = unitManager.AddUnitToTeam(unit, wanderer: false);
         if (behaviour == null)
@@ -204,7 +152,7 @@ public class HeroUnitManager
 
         if (_debug.Value)
             _log.LogInfo($"Spawned '{hero.Id}' as hero.");
-    }
+    }*/
 
     private UnitManager GetUnitManager()
     {
@@ -243,7 +191,7 @@ public class HeroUnitManager
             }
 
             _heroRegistered = false;
-            if (RegisterHeroUnits(unitManager))
+            if (RegisterHeroUnits(PortraitHero, unitManager))
             {
                 _heroRegistered = true;
                 EnsureProgressionEntry(unitManager, PortraitHero);
@@ -268,7 +216,7 @@ public class HeroUnitManager
             foreach (IHeroClass cls in hero.Classes)
             {
                 for (int level = 1; level <= MaxStyleLevel; level++)
-                    relicManager.AddOrReplaceEffectContainer(cls.BuildSkill(hero.Id, level, _skillValue.Value));
+                    relicManager.AddOrReplaceEffectContainer(cls.BuildSkill(hero.Id, level, 10));
             }
         }
     }
@@ -288,21 +236,20 @@ public class HeroUnitManager
     }
 
     /// <summary>Data-only: register class skills, base heroes, and per-class upgrade units.</summary>
-    private bool RegisterHeroUnits(UnitManager? unitManager = null)
+    private bool RegisterHeroUnits(HeroDefinition heroDef, UnitManager? unitManager = null)
     {
         unitManager ??= UnityEngine.Object.FindObjectOfType<UnitManager>();
         RelicManager relicManager = unitManager?._manager?._relicManager
             ?? UnityEngine.Object.FindObjectOfType<RelicManager>();
         if (unitManager == null) return false;
 
-        string configDonor = _visualDonorId.Value?.Trim() ?? "";
         bool allOk = true;
         foreach (HeroDefinition hero in _heroes)
         {
             bool onPortrait = hero.Id == PortraitHero.Id;
             if (!onPortrait)
                 RemoveFromHeroPicker(unitManager, hero.Id);
-            if (!RegisterOneHero(unitManager, relicManager, hero, configDonor, onPortrait))
+            if (!RegisterOneHero(unitManager, relicManager, hero, hero.AppearId, onPortrait))
                 allOk = false;
         }
 
@@ -314,7 +261,7 @@ public class HeroUnitManager
         string donorId = !string.IsNullOrEmpty(configDonor) ? configDonor : hero.AppearId;
         if (string.IsNullOrEmpty(donorId))
         {
-            _log.LogError($"Visual donor is empty for '{hero.Id}'.");
+            _log.LogError($"AppearId is empty for '{hero.Id}'.");
             return false;
         }
 
@@ -323,8 +270,8 @@ public class HeroUnitManager
             foreach (IHeroClass cls in hero.Classes)
             {
                 for (int level = 1; level <= MaxStyleLevel; level++)
-                    relicManager.AddOrReplaceEffectContainer(cls.BuildSkill(hero.Id, level, _skillValue.Value));
-            }
+                    relicManager.AddOrReplaceEffectContainer(cls.BuildSkill(hero.Id, level, 10));
+            }   
         }
 
         Unit baseHero = BuildBaseHero(hero, donorId, onPortrait ? UnitPool.hero : UnitPool.special);
@@ -349,7 +296,7 @@ public class HeroUnitManager
         {
             for (int level = 1; level <= MaxStyleLevel; level++)
             {
-                Unit upgrade = BuildUpgradeUnit(hero, cls, level, donorId);
+                Unit upgrade = BuildUpgradeHeroUnit(hero, cls, level, donorId);
                 unitManager.AddUnitToAllUnits(upgrade);
                 Unit stored = unitManager.GetUnitById(upgrade.id);
                 if (stored != null)
@@ -435,6 +382,7 @@ public class HeroUnitManager
     private void EnsureHeroUnitRegistered()
     {
         RegisterForPicker();
+        _heroRegistered = true;
     }
 
     /// <summary>
@@ -467,18 +415,18 @@ public class HeroUnitManager
                 continue;
 
             IHeroClass cls = hero.Classes[i];
-            EffectContainer probe = cls.BuildSkill(hero.Id, 1, _skillValue.Value);
+            EffectContainer probe = cls.BuildSkill(hero.Id, 1, 10);
             string stablePureId = CustomHeroSkillDisplay.PureIdForStyle(hero.Id, i);
             bool stacksAcrossLevels = probe.pureId == stablePureId;
 
             if (stacksAcrossLevels)
             {
-                next.Add(cls.BuildSkill(hero.Id, level, _skillValue.Value));
+                next.Add(cls.BuildSkill(hero.Id, level, 10));
             }
             else
             {
                 for (int lv = 1; lv <= level; lv++)
-                    next.Add(cls.BuildSkill(hero.Id, lv, _skillValue.Value));
+                    next.Add(cls.BuildSkill(hero.Id, lv, 10));
             }
         }
 
@@ -639,8 +587,10 @@ static class AttunmentEffectContainerStackPatch
 {
     static void Postfix(EffectContainer __instance, EffectContainer ec, ref bool __result)
     {
-        // Vanilla Stack updates level/effects but not id/title — sync after a successful merge.
-        if (!__result || ec == null)
+        // Only sync id/title for our custom skills. Vanilla Stack leaves id alone so
+        // GetLocaPure(id + "_title") still finds entries like skill_companion_skill_title.
+        // Rewriting id to skill_companion_skill_2 breaks Nightshade Occultist (and similar).
+        if (!__result || ec == null || !CustomHeroSkillDisplay.IsModSkill(__instance))
             return;
         if (string.IsNullOrEmpty(ec.pureId) || ec.pureId != __instance.pureId)
             return;

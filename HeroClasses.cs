@@ -429,7 +429,7 @@ public sealed class AttunmentHero : HeroDefinition
         new RootsClass(3, AllianceType.disruptor),
     };
 
-    public override string AppearId => "chancellor";
+    public override string AppearId => "inquisitor_white";
 }
 
 /// <summary>The Beast hero and its four classes.</summary>
@@ -447,7 +447,7 @@ public sealed class BeastHero : HeroDefinition
     };
 
     
-    public override string AppearId => "eclipse";
+    public override string AppearId => "nightshade_pink";
 }
 
 
@@ -465,6 +465,6 @@ public sealed class HumanHero : HeroDefinition
         new PermaClass(3, AllianceType.disruptor),
     };
 
-    public override string AppearId => "necromancer";
+    public override string AppearId => "warlock_necromancer";
 }
 

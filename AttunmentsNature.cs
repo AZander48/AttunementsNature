@@ -11,5 +11,7 @@ public class AttunmentsNature : BaseUnityPlugin
 
         new AttunmentsEffectsManager(Logger, Config);
         new HeroUnitManager(Logger, Config);
+        new UnstableAttunmentManager(Logger, Config);
+        new AttunmentUnitManager(Logger, Config);
     }
 }
