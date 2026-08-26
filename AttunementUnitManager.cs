@@ -7,7 +7,7 @@ using HadeanTactics;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AttunmentsNature;
+namespace AttunementsNature;
 
 public class AttunmentUnitManager
 {

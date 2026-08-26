@@ -7,7 +7,7 @@ using HadeanTactics;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AttunmentsNature;
+namespace AttunementsNature;
 
 public class HeroUnitManager
 {
@@ -732,7 +732,7 @@ static class AttunmentHeroMetaDownloadPatch
 }
 
 [HarmonyPatch(typeof(MetaManager), nameof(MetaManager.GetAllHeroDataList))]
-static class AttunmentSafeHeroDataListPatch
+static class AttunementsafeHeroDataListPatch
 {
     static bool Prefix(MetaManager __instance, ref List<HeroData> __result)
     {

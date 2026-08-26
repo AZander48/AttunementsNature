@@ -1,7 +1,7 @@
 using HarmonyLib;
 using HadeanTactics;
 
-namespace AttunmentsNature;
+namespace AttunementsNature;
 
 /// <summary>
 /// HP-threshold execute: hijacks EffectType.Execution when args == "mod_execute".

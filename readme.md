@@ -1,4 +1,4 @@
-# AttunmentsNature
+# AttunementsNature
 
 BepInEx 5 plugin for [Hadean Tactics](https://store.steampowered.com/app/1324530/Hadean_Tactics/).
 
@@ -24,7 +24,7 @@ Implementation uses `PoisonClaw` as a carrier with `args = "attunment:{element}"
 
 ## Setup
 
-1. Create `AttunmentsNature.props` (gitignored) with your install path:
+1. Create `AttunementsNature.props` (gitignored) with your install path:
 
 ```xml
 <Project>
@@ -41,11 +41,11 @@ dotnet restore
 dotnet build -c Release
 ```
 
-DLL copies to `BepInEx/plugins/AttunmentsNature`. A zip is also written to `bin/Publish/AttunmentsNature.zip`.
+DLL copies to `BepInEx/plugins/AttunementsNature`. A zip is also written to `bin/Publish/AttunementsNature.zip`.
 
 ## Config
 
-`BepInEx/config/AttunmentsNature.cfg`
+`BepInEx/config/AttunementsNature.cfg`
 
 Edit while the game is closed. BepInEx Configuration Manager does not work in Hadean Tactics.
 
@@ -74,10 +74,10 @@ In-game config UI (if available): **Add buff card to hand** draws an ally-target
 
 | File | Purpose |
 |------|---------|
-| `AttunmentsNature.cs` | Plugin entry |
+| `AttunementsNature.cs` | Plugin entry |
 | `AttunmentEffect.cs` | Buff helpers, test card, Harmony patches |
 | `hero.cs` | Hero unit + self-attunment skill |
-| `AttunmentsNature.props` | Local game path (not committed) |
+| `AttunementsNature.props` | Local game path (not committed) |
 
 ## Notes
 

@@ -7,14 +7,14 @@ using HarmonyLib;
 using HadeanTactics;
 using UnityEngine;
 
-namespace AttunmentsNature;
+namespace AttunementsNature;
 
 /// <summary>
 /// Attunment buff: PoisonClaw carrier with args "attunment:{burn|decay|frostbite|shock}".
 /// On attack applies that ailment for the buff's current value; value decays 10% per attack.
 /// Frostbite duration scales 1:1 with value.
 /// </summary>
-public static class AttunmentsEffects
+public static class AttunementsEffects
 {
     public const string ArgsPrefix = "attunment:";
 
@@ -113,7 +113,7 @@ public static class AttunmentsEffects
     }
 }
 
-public class AttunmentsEffectsManager
+public class AttunementsEffectsManager
 {
     private readonly ManualLogSource _log;
     private readonly ConfigEntry<bool> _debug;
@@ -123,7 +123,7 @@ public class AttunmentsEffectsManager
     private CardManager? _cardManager;
     private bool _skillsRegistered;
 
-    public AttunmentsEffectsManager(ManualLogSource log, ConfigFile config)
+    public AttunementsEffectsManager(ManualLogSource log, ConfigFile config)
     {
         _log = log;
         new Harmony(PluginInfo.PLUGIN_GUID).PatchAll(typeof(AttunmentHandleMeleePatch).Assembly);
@@ -133,7 +133,7 @@ public class AttunmentsEffectsManager
         _element = config.Bind(
             "Attunment",
             "Element",
-            AttunmentsEffects.Burn,
+            AttunementsEffects.Burn,
             "Fixed element for the test card: burn, decay, frostbite, or shock.");
 
         config.Bind(
@@ -170,9 +170,9 @@ public class AttunmentsEffectsManager
         if (relicManager == null)
             return false;
 
-        foreach (string element in AttunmentsEffects.Elements)
+        foreach (string element in AttunementsEffects.Elements)
         {
-            EffectContainer skill = AttunmentsEffects.CreateSkill(element, _buffValue.Value);
+            EffectContainer skill = AttunementsEffects.CreateSkill(element, _buffValue.Value);
             relicManager.AddOrReplaceEffectContainer(skill);
             if (_debug.Value)
                 _log.LogInfo($"Registered {skill.id}");
@@ -186,8 +186,8 @@ public class AttunmentsEffectsManager
         _skillsRegistered = false;
         EnsureSkillsRegistered();
 
-        string element = (_element.Value ?? AttunmentsEffects.Burn).Trim().ToLowerInvariant();
-        if (!AttunmentsEffects.TryGetElement(AttunmentsEffects.ArgsFor(element), out _))
+        string element = (_element.Value ?? AttunementsEffects.Burn).Trim().ToLowerInvariant();
+        if (!AttunementsEffects.TryGetElement(AttunementsEffects.ArgsFor(element), out _))
         {
             _log.LogError($"Invalid Element '{_element.Value}'. Use burn, decay, frostbite, or shock.");
             return;
@@ -212,7 +212,7 @@ public class AttunmentsEffectsManager
             repeat = 1,
             IsMod = false,
             modId = PluginInfo.PLUGIN_GUID,
-            effects = new List<Effect> { AttunmentsEffects.CreateBuff(element, _buffValue.Value) },
+            effects = new List<Effect> { AttunementsEffects.CreateBuff(element, _buffValue.Value) },
         };
 
         if (string.IsNullOrEmpty(card.heroId))
@@ -241,12 +241,12 @@ static class AttunmentHandleMeleePatch
 
     static bool Prefix(UnitBehaviour __instance, UnitBehaviour targetUnit, int damage, bool crit)
     {
-        if (!AttunmentsEffects.TryGetAttunment(__instance, out UnitStatus status))
+        if (!AttunementsEffects.TryGetAttunment(__instance, out UnitStatus status))
             return true;
 
         if (!targetUnit.CheckMiss(__instance))
         {
-            AttunmentsEffects.ApplyOnHit(__instance, targetUnit, status._eRemove);
+            AttunementsEffects.ApplyOnHit(__instance, targetUnit, status._eRemove);
 
             int dmg = damage;
             if (__instance.unit.overkill > 0 && targetUnit.unit.currentHp <= targetUnit.unit.MaxHP / 2)
@@ -283,10 +283,10 @@ static class AttunmentProjectileInitPatch
     {
         if (source == null || effects == null)
             return;
-        if (!AttunmentsEffects.TryGetAttunment(source, out UnitStatus status))
+        if (!AttunementsEffects.TryGetAttunment(source, out UnitStatus status))
             return;
 
-        Effect replacement = AttunmentsEffects.CreateOnHitEffect(status._eRemove);
+        Effect replacement = AttunementsEffects.CreateOnHitEffect(status._eRemove);
         for (int i = 0; i < effects.Count; i++)
         {
             if (effects[i].effectType == EffectType.Decay && effects[i].value == source.unit.poisonClaw)
@@ -304,7 +304,7 @@ static class AttunmentCheckDurationPatch
             return true;
         if (__instance?._eRemove == null || __instance._eRemove.effectType != EffectType.PoisonClaw)
             return true;
-        if (!AttunmentsEffects.TryGetElement(__instance._eRemove.args, out _))
+        if (!AttunementsEffects.TryGetElement(__instance._eRemove.args, out _))
             return true;
 
         int value = __instance._eRemove.value;

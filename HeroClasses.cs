@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using HadeanTactics;
 
-namespace AttunmentsNature;
+namespace AttunementsNature;
 
 /// <summary>
 /// A hero class / affinity path. Each concrete class lives in its own type.
@@ -75,7 +75,7 @@ public sealed class AttunmentClass : HeroClassBase
 
     protected override List<Effect> BuildEffects(int level, int baseValue) => new()
     {
-        AttunmentsEffects.CreateBuff(_element, baseValue * level),
+        AttunementsEffects.CreateBuff(_element, baseValue * level),
     };
 
     protected override string BuildDescription(int level, int baseValue) =>
@@ -423,7 +423,7 @@ public sealed class AttunmentHero : HeroDefinition
 
     public override IReadOnlyList<IHeroClass> Classes { get; } = new IHeroClass[]
     {
-        new AttunmentClass(0, AttunmentsEffects.Burn, AllianceType.bright),
+        new AttunmentClass(0, AttunementsEffects.Burn, AllianceType.bright),
         new ElementCloakClass(1, AllianceType.mystic),
         new ElementalTrapsClass(2, AllianceType.hunter),
         new RootsClass(3, AllianceType.disruptor),

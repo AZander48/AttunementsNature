@@ -1,6 +1,6 @@
 public enum AttunmentElement { Burn, Frostbite, Decay, Shock }
 
-public class UnstableAttunmentState
+public class UnstableAttunementstate
 {
     public AttunmentElement Element;
     public int Value { get; set; }

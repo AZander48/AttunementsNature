@@ -3,7 +3,7 @@ using BepInEx.Logging;
 using BepInEx.Configuration;
 using System;
 
-namespace AttunmentsNature;
+namespace AttunementsNature;
 
 public class UnstableAttunmentManager
 {
@@ -12,7 +12,7 @@ public class UnstableAttunmentManager
     private ManualLogSource _log = null!;
     private ConfigEntry<bool> _debug = null!;
 
-    readonly UnstableAttunmentState _state = new();
+    readonly UnstableAttunementstate _state = new();
 
     public UnstableAttunmentManager(ManualLogSource log, ConfigFile config)
     {

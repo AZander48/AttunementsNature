@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Condition="Exists('AttunmentsNature.props')" Project="AttunmentsNature.props" />
+  <Import Condition="Exists('AttunementsNature.props')" Project="AttunementsNature.props" />
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -14,8 +14,8 @@
 
   <PropertyGroup>
     <!--These properties will control the generated PluginInfo. Version is also used by various parts of the build system.-->
-    <BepInExPluginGuid>AttunmentsNature</BepInExPluginGuid>
-    <BepInExPluginName>AttunmentsNature</BepInExPluginName>
+    <BepInExPluginGuid>AttunementsNature</BepInExPluginGuid>
+    <BepInExPluginName>AttunementsNature</BepInExPluginName>
     <Version>0.2.0</Version>
   </PropertyGroup>
 

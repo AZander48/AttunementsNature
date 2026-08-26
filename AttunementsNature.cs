@@ -1,15 +1,15 @@
 using BepInEx;
 
-namespace AttunmentsNature;
+namespace AttunementsNature;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-public class AttunmentsNature : BaseUnityPlugin
+public class AttunementsNature : BaseUnityPlugin
 {
     private void Awake()
     {
         Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} has loaded!");
 
-        new AttunmentsEffectsManager(Logger, Config);
+        new AttunementsEffectsManager(Logger, Config);
         new HeroUnitManager(Logger, Config);
         new UnstableAttunmentManager(Logger, Config);
         new AttunmentUnitManager(Logger, Config);
